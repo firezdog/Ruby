@@ -16,6 +16,14 @@ class Card
         end
     end
 
+    def hide
+        @show = false
+    end
+
+    def reveal
+        @show = true
+    end
+
     def to_s
         return "#{rank} of #{suit}" if show
         "Card is hidden."

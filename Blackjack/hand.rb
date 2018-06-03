@@ -15,30 +15,38 @@ class Hand
         'Jack': 10,
         'Queen': 10,
         'King': 10,
-        'Ace': [1,11]
-
+        'Ace': lambda { |total| total + 11 <= 21 ? 11 : 1 }
     }
 
     def initialize
         @dealt_cards = []
     end
 
-    def add_card card
+    def add_card card, show = true
+        card.hide unless show
         @dealt_cards << card
     end
 
     def get_value
-        card_ranks = []
-        result = 0
+        card_ranks = @dealt_cards.map{|card| card.rank }
+        sum = card_ranks.reduce(0) { |total, rank|
+            total += rank == "Ace"? 
+                VALUES[rank.to_sym].call(total) :
+                VALUES[rank.to_sym]
+        }
+    end
+
+    def to_s
+        message = ""
+        score = get_value
         @dealt_cards.each do |card|
-            card_ranks << card.rank
+            message += card.show ? "#{card.to_s}, " : ""
+            score -= card.show ?
+                0 : card.rank == "Ace" ?
+                    VALUES[:Ace].call(score-11) :
+                    VALUES[card.rank.to_sym]
         end
-        card_ranks.each do |rank|
-            rank = rank.to_sym
-            result += VALUES[rank] unless rank == :Ace
-            result += (result + 11 > 21) ? VALUES[:Ace][0] : VALUES[:Ace][1] if rank == :Ace
-        end
-        result
+        message += "#{score} points"
     end
 
 end
