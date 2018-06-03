@@ -8,8 +8,7 @@ game.deal
 
 puts game
 
-while game.player_hand.get_value <= 21 do
-    puts
+while game.game_in_progress do
     puts "Want to hit (1) or stand (2)?"
     res = gets.chomp
     if res.to_i == 1

@@ -1,5 +1,7 @@
 require_relative 'blackjack'
 
+#Tests may fail intermittently when they depend upon randomized results.
+
 RSpec.describe Blackjack do
 
     SUITS = ["Hearts", "Spades", "Clubs", "Diamonds"]
@@ -74,7 +76,7 @@ RSpec.describe Blackjack do
             expect(@player_cards.count).to eq(3)
             expect(@dealer_cards.count).to eq(2)
         end
-
+        
         it 'player should bust if dealt more than 21 from cards' do
             card1 = Card.new("Hearts", "3")
             card2 = Card.new("Hearts","King")
@@ -104,7 +106,7 @@ RSpec.describe Blackjack do
             @blackjack = Blackjack.new SUITS, RANKS
             new_deck = [card1, card2, card3, card4, card5, card6]
             @blackjack.deck.replace_with(new_deck)
-            @blackjack.deal
+            @blackjack.deal #after this, the player stands automatically, so the dealer players until it has more than 17 and busts
 
             expect(@blackjack.game_in_progress).to eq(false)
             expect(@blackjack.result).to eq("Dealer busted!")
