@@ -26,7 +26,8 @@ class Blackjack
         end
 
         @game_in_progress = true
-        @current_player = @player_hand.get_value == 21 ? "Dealer" : "Player"
+        @current_player = "Player"
+        stand if @player_hand.get_value == 21
 
     end
 
@@ -40,10 +41,7 @@ class Blackjack
 
     def add_new_card hand
         hand.add_card @deck.deal_card
-        if hand.get_value > 21
-            @result = "#{@current_player} busted!" 
-            @game_in_progress = false;
-        end
+        set_result hand
     end
 
     def stand
@@ -51,10 +49,9 @@ class Blackjack
             @current_player = @current_player == "Player" ? "Dealer" : "Player"
             if @current_player == "Dealer"
                 @dealer_hand.dealt_cards.first.reveal
-                if @dealer_hand.get_value < 17
+                until @dealer_hand.get_value > 17
                     add_new_card @dealer_hand 
                 end
-                stand
             end
         end
     end
@@ -63,7 +60,28 @@ class Blackjack
         "Player's hand: #{@player_hand}\nDealer's hand: #{@dealer_hand}\n=============================================================="
     end
 
-    def set_result
+    def set_result(hand)
+        @game_in_progress = false;
+        if hand.get_value > 21
+            @result = "#{@current_player} busted!" 
+        elsif hand.get_value == 21 
+            if player_hand.get_value == dealer_hand.get_value
+                @result = "Player and dealer tied."
+            else
+                @result = "#{@current_player} wins!"
+            end
+        else
+            other_hand = @current_player == "Player" ? @dealer_hand : @player_hand
+            other_player = @current_player == "Player" ? "Dealer" : "Player"
+            if hand.get_value > other_hand.get_value
+                @result = "#{@current_player} wins!"
+            elsif hand.get_value == other_hand.get_value
+                @result = "Player and dealer tied."
+            else
+                @result = "#{other_player} wins!"
+            end
+        end
+        @result
     end
 
     def to_s

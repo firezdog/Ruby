@@ -51,21 +51,6 @@ RSpec.describe Blackjack do
             expect(@dealer_cards.last.show).to eq(true)
         end
 
-        it 'should end the turn of player if a blackjack is dealt' do
-            card1 = Card.new("Hearts", "3")
-            card2 = Card.new("Hearts","Ace")
-            card3 = Card.new("Hearts", "2")
-            card4 = Card.new("Hearts", "Jack")
-
-            @blackjack = Blackjack.new SUITS, RANKS
-            new_deck = [card1, card2, card3, card4]
-            @blackjack.deck.replace_with(new_deck)
-            @blackjack.deal
-
-            expect(@blackjack.current_player).to eq("Dealer")
-
-        end
-
     end
 
     describe '#hit' do
@@ -111,7 +96,7 @@ RSpec.describe Blackjack do
         it 'dealer should bust if dealt more than 21 from cards' do
             card1 = Card.new("Hearts", "3")
             card2 = Card.new("Hearts","King")
-            card3 = Card.new("Hearts", "10")
+            card3 = Card.new("Hearts", "6")
             card4 = Card.new("Hearts", "Ace")
             card5 = Card.new("Hearts", "10")
             card6 = Card.new("Hearts", "10")
@@ -120,7 +105,6 @@ RSpec.describe Blackjack do
             new_deck = [card1, card2, card3, card4, card5, card6]
             @blackjack.deck.replace_with(new_deck)
             @blackjack.deal
-            @blackjack.hit
 
             expect(@blackjack.game_in_progress).to eq(false)
             expect(@blackjack.result).to eq("Dealer busted!")
@@ -147,15 +131,15 @@ RSpec.describe Blackjack do
             expect(@blackjack).to respond_to(:stand)
         end
 
-        it 'should switch current_player from player to dealer, then back to player' do
+        it 'should switch current_player from player to dealer' do
             @blackjack.stand
-            expect(@blackjack.current_player).to eq("Player")
+            expect(@blackjack.current_player).to eq("Dealer")
         end
 
-        it 'should have dealer hit if its score < 17' do
+        it 'should have dealer hit until its score > 17' do
             expect(@blackjack.dealer_hand.get_value).to eq(12)
             @blackjack.stand
-            expect(@blackjack.dealer_hand.get_value).to eq(16)
+            expect(@blackjack.dealer_hand.get_value).to eq(19)
         end
 
         it 'should show all dealers cards' do
@@ -183,9 +167,85 @@ RSpec.describe Blackjack do
     end
 
     describe '#set_result' do
+        before do
+            @blackjack = Blackjack.new SUITS, RANKS
+            card1 = Card.new("Spades", "Jack")
+            card2 = Card.new("Spades","Jack")
+            card3 = Card.new("Hearts", "Jack")
+            card4 = Card.new("Hearts", "Jack")
+            card5 = Card.new("Hearts", "Jack")
+            card6 = Card.new("Hearts", "Jack")
+            new_deck = [card1, card2, card3, card4, card5, card6]
+            @blackjack.deck.replace_with(new_deck)
+            @blackjack.deal
+        end
+
         it 'responds to set_result' do
             expect(@blackjack).to respond_to(:set_result)
         end
+
+        it 'notifies player if she has busted' do
+            @blackjack.hit
+            expect(@blackjack.set_result(@blackjack.player_hand)).to eq("Player busted!")
+        end
+
+        it 'notifies player if dealer has busted' do
+            @blackjack = Blackjack.new SUITS, RANKS
+            card1 = Card.new("Spades", "Jack")
+            card2 = Card.new("Spades","Jack")
+            card3 = Card.new("Hearts", "6")
+            card4 = Card.new("Hearts", "Jack")
+            card5 = Card.new("Hearts", "Jack")
+            card6 = Card.new("Hearts", "Jack")
+            new_deck = [card1, card2, card3, card4, card5, card6]
+            @blackjack.deck.replace_with(new_deck)
+            @blackjack.deal
+            @blackjack.stand
+            expect(@blackjack.set_result(@blackjack.dealer_hand)).to eq("Dealer busted!")
+        end
+
+        it 'notifies player if player and dealer tied' do
+            @blackjack = Blackjack.new SUITS, RANKS
+            card2 = Card.new("Spades","7")
+            card3 = Card.new("Hearts", "4")
+            card4 = Card.new("Hearts", "Ace")
+            card5 = Card.new("Hearts", "Jack")
+            card6 = Card.new("Hearts", "Jack")
+            new_deck = [card2, card3, card4, card5, card6]
+            @blackjack.deck.replace_with(new_deck)
+            @blackjack.deal
+            @blackjack.stand
+            expect(@blackjack.set_result(@blackjack.dealer_hand)).to eq("Player and dealer tied.")
+        end
+
+        it 'notifies player if she has won' do
+            @blackjack = Blackjack.new SUITS, RANKS
+            card2 = Card.new("Spades","6")
+            card3 = Card.new("Hearts", "4")
+            card4 = Card.new("Hearts", "Ace")
+            card5 = Card.new("Hearts", "Jack")
+            card6 = Card.new("Hearts", "Jack")
+            new_deck = [card2, card3, card4, card5, card6]
+            @blackjack.deck.replace_with(new_deck)
+            @blackjack.deal
+            @blackjack.stand
+            expect(@blackjack.result).to eq("Player wins!")
+        end
+
+        it 'notifies player if dealer has won' do
+            @blackjack = Blackjack.new SUITS, RANKS
+            card2 = Card.new("Spades","6")
+            card3 = Card.new("Hearts", "4")
+            card4 = Card.new("Hearts", "3")
+            card5 = Card.new("Hearts", "Jack")
+            card6 = Card.new("Hearts", "Jack")
+            new_deck = [card2, card3, card4, card5, card6]
+            @blackjack.deck.replace_with(new_deck)
+            @blackjack.deal
+            @blackjack.stand
+            expect(@blackjack.result).to eq("Dealer wins!")
+        end
+
     end
 
 end
